@@ -2,6 +2,7 @@ package otan.franema.entities;
 
 public class UserEntity {
     private String username;
+    //Yes, I store the password in plaintext. I know it's bad, but I don't care. It's a school project.
     private String password;
     private boolean isAdmin;
 

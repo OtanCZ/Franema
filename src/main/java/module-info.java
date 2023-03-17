@@ -1,6 +1,7 @@
 module otan.franema {
     requires javafx.controls;
     requires javafx.fxml;
+    requires java.sql;
 
 
     opens otan.franema to javafx.fxml;

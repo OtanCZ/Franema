@@ -1,5 +1,6 @@
 package otan.franema.controllers;
 
+import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -10,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
+import otan.franema.view.SceneEntity;
 
 public class LoginController {
     public BorderPane loginPane;
@@ -80,5 +82,17 @@ public class LoginController {
 
     private void loginButtonOnMouseClick(MouseEvent mouseEvent) {
         System.out.println("Login button clicked!");
+        try {
+            FranemaApplication.appProvider.loginAccount(usernameField.getText(), passwordField.getText());
+            if(FranemaApplication.appProvider.getCurrentUser() != null) {
+                System.out.println("Logged in as " + FranemaApplication.appProvider.getCurrentUser().getUsername());
+                FranemaApplication.stageManager.showScene(SceneEntity.MAIN_MENU);
+            } else {
+                System.out.println("Login failed!");
+                passwordField.setBackground(new Background(new BackgroundFill(javafx.scene.paint.Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
