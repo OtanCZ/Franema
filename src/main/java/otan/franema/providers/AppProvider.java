@@ -104,17 +104,21 @@ public class AppProvider {
             Statement stmt = conn.createStatement();
             stmt.executeUpdate("DELETE FROM cinema WHERE id = " + cinema.getId());
             allCinemas.remove(cinema);
+            List<TicketEntity> toRemove = new ArrayList<>();
             for (TicketEntity ticket : allTickets) {
                 if (ticket.getCinema().getId() == cinema.getId()) {
-                    allTickets.remove(ticket);
+                    toRemove.add(ticket);
                 }
             }
+            allTickets.removeAll(toRemove);
 
+            toRemove.clear();
             for (TicketEntity ticket : userTickets) {
                 if (ticket.getCinema().getId() == cinema.getId()) {
-                    userTickets.remove(ticket);
+                    toRemove.add(ticket);
                 }
             }
+            userTickets.removeAll(toRemove);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -185,12 +189,14 @@ public class AppProvider {
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             Statement stmt = conn.createStatement();
             stmt.executeUpdate("DELETE FROM ticket WHERE id = " + ticket.getId());
-            allTickets.remove(ticket);
+            List<TicketEntity> toRemove = new ArrayList<>();
             for (TicketEntity userTicket : userTickets) {
                 if (userTicket.getId() == ticket.getId()) {
-                    userTickets.remove(userTicket);
+                    toRemove.add(userTicket);
                 }
             }
+            userTickets.removeAll(toRemove);
+            allTickets.remove(ticket);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
