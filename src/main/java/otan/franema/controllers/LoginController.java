@@ -6,6 +6,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import otan.franema.ApplicationStarter;
 import otan.franema.FranemaApplication;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -30,7 +31,7 @@ public class LoginController {
     @FXML
     public void initialize() {
         System.out.println("LoginController initialized!");
-        logoPane.setBackground(new Background(new BackgroundImage(new Image("file:src/main/resources/otan/franema/images/logo.png"), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(0.5, 1.0, true, true, false, false))));
+        logoPane.setBackground(new Background(new BackgroundImage(new Image(FranemaApplication.class.getResource("images/logo.png").toString()), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(0.5, 1.0, true, true, false, false))));
         usernameField.setPromptText("Average Franta Uživatel");
         usernameLabel.setText("Username:");
         usernameBox.getChildren().addAll(usernameLabel, usernameField);

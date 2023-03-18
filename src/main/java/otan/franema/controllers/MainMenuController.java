@@ -7,6 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import otan.franema.ApplicationStarter;
 import otan.franema.FranemaApplication;
 import otan.franema.view.SceneEntity;
 
@@ -24,7 +25,7 @@ public class MainMenuController {
     @FXML
     public void initialize() {
         System.out.println("MainMenuController initialized!");
-        logoPane.setBackground(new Background(new BackgroundImage(new Image("file:src/main/resources/otan/franema/images/logo.png"), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(0.5, 1.0, true, true, false, false))));
+        logoPane.setBackground(new Background(new BackgroundImage(new Image(FranemaApplication.class.getResource("images/logo.png").toString()), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(0.5, 1.0, true, true, false, false))));
         label.setText("Welcome to Franema, " + FranemaApplication.appProvider.getCurrentUser().getUsername() + "!");
 
         logoutButton.setText("Log out");
