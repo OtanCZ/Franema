@@ -27,7 +27,7 @@ public class AdminPanelController {
 
         backButton.setText("Back to Main Menu");
         backButton.setOnMouseClicked(this::backButtonOnMouseClick);
-        
+
         menu.getChildren().addAll(ticketsButton, cinemasButton, backButton);
         menu.setAlignment(Pos.CENTER);
         menu.setSpacing(10);

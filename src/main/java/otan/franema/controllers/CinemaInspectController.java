@@ -56,7 +56,7 @@ public class CinemaInspectController {
         deleteButton.setOnMouseClicked(this::deleteButtonOnMouseClick);
 
         buttons.getChildren().add(exitButton);
-        if(FranemaApplication.appProvider.getCurrentUser().isAdmin()) {
+        if (FranemaApplication.appProvider.getCurrentUser().isAdmin()) {
             buttons.getChildren().addAll(editButton, deleteButton);
         }
         buttons.setAlignment(Pos.CENTER);
@@ -66,11 +66,11 @@ public class CinemaInspectController {
         menu.setSpacing(10);
         cinemaInspectPanelPane.setCenter(menu);
 
-        if(FranemaApplication.appProvider.getCurrentCinema().getId() == 0){
-           nameField.editableProperty().setValue(true);
-           addressField.editableProperty().setValue(true);
-           editButton.setText("Save");
-           editButton.setOnMouseClicked(this::saveButtonOnMouseClick);
+        if (FranemaApplication.appProvider.getCurrentCinema().getId() == 0) {
+            nameField.editableProperty().setValue(true);
+            addressField.editableProperty().setValue(true);
+            editButton.setText("Save");
+            editButton.setOnMouseClicked(this::saveButtonOnMouseClick);
         }
 
 

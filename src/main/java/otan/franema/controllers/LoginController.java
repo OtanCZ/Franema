@@ -85,7 +85,7 @@ public class LoginController {
         System.out.println("Login button clicked!");
         try {
             FranemaApplication.appProvider.loginAccount(usernameField.getText(), passwordField.getText());
-            if(FranemaApplication.appProvider.getCurrentUser() != null) {
+            if (FranemaApplication.appProvider.getCurrentUser() != null) {
                 System.out.println("Logged in as " + FranemaApplication.appProvider.getCurrentUser().getUsername());
                 FranemaApplication.stageManager.showScene(SceneEntity.MAIN_MENU);
             } else {

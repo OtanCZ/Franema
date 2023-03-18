@@ -33,7 +33,7 @@ public class MainMenuController {
 
         exitButton.setText("Exit");
         exitButton.setOnMouseClicked(this::exitButtonOnMouseClick);
-        
+
         ticketsButton.setText("View tickets");
         ticketsButton.setOnMouseClicked(this::ticketsButtonOnMouseClick);
 

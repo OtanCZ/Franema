@@ -13,6 +13,7 @@ import java.io.IOException;
 public class FranemaApplication extends Application {
     public static StageManager stageManager;
     public static AppProvider appProvider;
+
     @Override
     public void start(Stage stage) throws Exception {
         this.stageManager = new StageManager(stage);

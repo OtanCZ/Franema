@@ -1,4 +1,5 @@
 package otan.franema.providers;
+
 import otan.franema.entities.CinemaEntity;
 import otan.franema.entities.TicketEntity;
 import otan.franema.entities.UserEntity;
@@ -32,7 +33,7 @@ public class AppProvider {
             if (rs.next()) {
                 //This is very stupid, but idc
                 UserEntity user = new UserEntity(rs.getInt("id"), rs.getString("username"), rs.getString("password"), rs.getBoolean("isAdmin"));
-                if(user.getPassword().equals(password)) {
+                if (user.getPassword().equals(password)) {
                     currentUser = user;
                     fetchUserTickets();
                 }
@@ -72,7 +73,7 @@ public class AppProvider {
 
     public CinemaEntity findCinemaById(int id) {
         for (CinemaEntity cinema : allCinemas) {
-            if(cinema.getId() == id) {
+            if (cinema.getId() == id) {
                 return cinema;
             }
         }
@@ -82,13 +83,13 @@ public class AppProvider {
     public void saveCinema(CinemaEntity currentCinema) {
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             Statement stmt = conn.createStatement();
-            if(currentCinema.getId() != 0) {
+            if (currentCinema.getId() != 0) {
                 stmt.executeUpdate("UPDATE cinema SET name = \"" + currentCinema.getName() + "\", address = \"" + currentCinema.getAddress() + "\" WHERE id = " + currentCinema.getId());
             } else {
                 PreparedStatement ps = conn.prepareStatement("INSERT INTO cinema VALUES (null, \"" + currentCinema.getName() + "\", \"" + currentCinema.getAddress() + "\")", Statement.RETURN_GENERATED_KEYS);
                 ps.executeUpdate();
                 ResultSet rs = ps.getGeneratedKeys();
-                if(rs.next()){
+                if (rs.next()) {
                     currentCinema.setId(rs.getInt(1));
                     allCinemas.add(currentCinema);
                 }
@@ -103,6 +104,17 @@ public class AppProvider {
             Statement stmt = conn.createStatement();
             stmt.executeUpdate("DELETE FROM cinema WHERE id = " + cinema.getId());
             allCinemas.remove(cinema);
+            for (TicketEntity ticket : allTickets) {
+                if (ticket.getCinema().getId() == cinema.getId()) {
+                    allTickets.remove(ticket);
+                }
+            }
+
+            for (TicketEntity ticket : userTickets) {
+                if (ticket.getCinema().getId() == cinema.getId()) {
+                    userTickets.remove(ticket);
+                }
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -131,7 +143,7 @@ public class AppProvider {
                 PreparedStatement stmt2 = conn.prepareStatement("SELECT * FROM ticket WHERE id = ?");
                 stmt2.setInt(1, rs.getInt("ticket_id"));
                 ResultSet rs2 = stmt2.executeQuery();
-                if(rs2.next()) {
+                if (rs2.next()) {
                     TicketEntity ticket = new TicketEntity(rs2.getInt("id"), findCinemaById(rs2.getInt("cinema_id")), rs2.getString("movie"), rs2.getString("time"));
                     userTickets.add(ticket);
                 }
@@ -143,7 +155,7 @@ public class AppProvider {
 
     public TicketEntity findTicketById(int id) {
         for (TicketEntity ticket : allTickets) {
-            if(ticket.getId() == id) {
+            if (ticket.getId() == id) {
                 return ticket;
             }
         }
@@ -153,13 +165,13 @@ public class AppProvider {
     public void saveTicket(TicketEntity currentTicket) {
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             Statement stmt = conn.createStatement();
-            if(currentTicket.getId() != 0) {
+            if (currentTicket.getId() != 0) {
                 stmt.executeUpdate("UPDATE ticket SET cinema_id = " + currentTicket.getCinema().getId() + ", movie = \"" + currentTicket.getMovie() + "\", time = \"" + currentTicket.getDate() + "\" WHERE id = " + currentTicket.getId());
             } else {
                 PreparedStatement ps = conn.prepareStatement("INSERT INTO ticket VALUES (null, " + currentTicket.getCinema().getId() + ", \"" + currentTicket.getMovie() + "\", \"" + currentTicket.getDate() + "\")", Statement.RETURN_GENERATED_KEYS);
                 ps.executeUpdate();
                 ResultSet rs = ps.getGeneratedKeys();
-                if(rs.next()){
+                if (rs.next()) {
                     currentTicket.setId(rs.getInt(1));
                     allTickets.add(currentTicket);
                 }
@@ -174,6 +186,11 @@ public class AppProvider {
             Statement stmt = conn.createStatement();
             stmt.executeUpdate("DELETE FROM ticket WHERE id = " + ticket.getId());
             allTickets.remove(ticket);
+            for (TicketEntity userTicket : userTickets) {
+                if (userTicket.getId() == ticket.getId()) {
+                    userTickets.remove(userTicket);
+                }
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

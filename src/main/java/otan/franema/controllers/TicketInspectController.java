@@ -74,7 +74,7 @@ public class TicketInspectController {
         buyButton.setOnMouseClicked(this::buyButtonOnMouseClick);
 
         buttons.getChildren().addAll(buyButton, exitButton);
-        if(FranemaApplication.appProvider.getCurrentUser().isAdmin()) {
+        if (FranemaApplication.appProvider.getCurrentUser().isAdmin()) {
             buttons.getChildren().addAll(editButton, deleteButton);
         }
         buttons.setAlignment(Pos.CENTER);
@@ -84,12 +84,12 @@ public class TicketInspectController {
         menu.setSpacing(10);
         ticketInspectPanelPane.setCenter(menu);
 
-        if(FranemaApplication.appProvider.getCurrentTicket().getId() == 0){
-           nameField.editableProperty().setValue(true);
-           timeField.editableProperty().setValue(true);
-           cinemaPicker.setOnShown(null);
-           editButton.setText("Save");
-           editButton.setOnMouseClicked(this::saveButtonOnMouseClick);
+        if (FranemaApplication.appProvider.getCurrentTicket().getId() == 0) {
+            nameField.editableProperty().setValue(true);
+            timeField.editableProperty().setValue(true);
+            cinemaPicker.setOnShown(null);
+            editButton.setText("Save");
+            editButton.setOnMouseClicked(this::saveButtonOnMouseClick);
         } else {
             cinemaPicker.getSelectionModel().select(FranemaApplication.appProvider.getCurrentTicket().getCinema().getName());
         }
@@ -139,7 +139,7 @@ public class TicketInspectController {
     }
 
     private void cinemaPickerOnMouseClick(MouseEvent mouseEvent) {
-        if(editButton.getText().equals("Edit")) {
+        if (editButton.getText().equals("Edit")) {
             FranemaApplication.appProvider.setCurrentCinema(FranemaApplication.appProvider.getAllCinemas().get(cinemaPicker.getSelectionModel().getSelectedIndex()));
             try {
                 FranemaApplication.stageManager.showPopup(SceneEntity.CINEMA_INSPECT);

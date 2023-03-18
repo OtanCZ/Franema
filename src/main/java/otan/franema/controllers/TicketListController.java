@@ -44,7 +44,7 @@ public class TicketListController {
         userTickets.setOnMouseClicked(this::userTicketsOnMouseClick);
 
         bottom.getChildren().add(backButton);
-        if(FranemaApplication.appProvider.getCurrentUser().isAdmin()) {
+        if (FranemaApplication.appProvider.getCurrentUser().isAdmin()) {
             bottom.getChildren().add(createTicket);
         }
         bottom.setAlignment(Pos.CENTER);
@@ -126,7 +126,7 @@ public class TicketListController {
 
     private void backButtonOnMouseClick(MouseEvent mouseEvent) {
         try {
-            if(FranemaApplication.appProvider.getCurrentUser().isAdmin()){
+            if (FranemaApplication.appProvider.getCurrentUser().isAdmin()) {
                 FranemaApplication.stageManager.showScene(SceneEntity.ADMIN_PANEL);
             } else {
                 FranemaApplication.stageManager.showScene(SceneEntity.MAIN_MENU);

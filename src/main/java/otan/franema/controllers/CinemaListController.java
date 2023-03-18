@@ -1,4 +1,5 @@
 package otan.franema.controllers;
+
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -22,12 +23,12 @@ public class CinemaListController {
         System.out.println("cinemaListController initialized!");
         backButton.setText("Back to Admin Panel");
         backButton.setOnMouseClicked(this::backButtonOnMouseClick);
-        
+
         createCinema.setText("Create Cinema");
         createCinema.setOnMouseClicked(this::createCinemaOnMouseClick);
 
         bottom.getChildren().add(backButton);
-        if(FranemaApplication.appProvider.getCurrentUser().isAdmin()) {
+        if (FranemaApplication.appProvider.getCurrentUser().isAdmin()) {
             bottom.getChildren().add(createCinema);
         }
         bottom.setAlignment(Pos.CENTER);
@@ -83,7 +84,7 @@ public class CinemaListController {
 
     private void backButtonOnMouseClick(MouseEvent mouseEvent) {
         try {
-            if(FranemaApplication.appProvider.getCurrentUser().isAdmin()){
+            if (FranemaApplication.appProvider.getCurrentUser().isAdmin()) {
                 FranemaApplication.stageManager.showScene(SceneEntity.ADMIN_PANEL);
             } else {
                 FranemaApplication.stageManager.showScene(SceneEntity.MAIN_MENU);
