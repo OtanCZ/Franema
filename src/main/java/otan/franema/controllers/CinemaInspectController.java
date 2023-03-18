@@ -1,21 +1,25 @@
 package otan.franema.controllers;
 
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import otan.franema.FranemaApplication;
-import otan.franema.entities.CinemaEntity;
-import otan.franema.view.SceneEntity;
 
 public class CinemaInspectController {
     public BorderPane cinemaInspectPanelPane;
     public Button editButton = new Button();
+    public Button deleteButton = new Button();
     public TextField nameField = new TextField();
     public TextArea addressField = new TextArea();
-    public Button backButton = new Button();
+    public Button exitButton = new Button();
     public VBox menu = new VBox();
     public VBox nameBox = new VBox();
     public Label nameLabel = new Label();
@@ -45,12 +49,15 @@ public class CinemaInspectController {
         editButton.setText("Edit");
         editButton.setOnMouseClicked(this::editButtonOnMouseClick);
 
-        backButton.setText("Back");
-        backButton.setOnMouseClicked(this::backButtonOnMouseClick);
+        exitButton.setText("Close");
+        exitButton.setOnMouseClicked(this::exitButtonOnMouseClick);
 
-        buttons.getChildren().add(backButton);
+        deleteButton.setText("Delete (this also deletes all movies and tickets!)");
+        deleteButton.setOnMouseClicked(this::deleteButtonOnMouseClick);
+
+        buttons.getChildren().add(exitButton);
         if(FranemaApplication.appProvider.getCurrentUser().isAdmin()) {
-            buttons.getChildren().add(editButton);
+            buttons.getChildren().addAll(editButton, deleteButton);
         }
         buttons.setAlignment(Pos.CENTER);
         buttons.setSpacing(10);
@@ -77,18 +84,22 @@ public class CinemaInspectController {
                 nameField.setMaxWidth(cinemaInspectPanelPane.getWidth());
             }
         });
-        cinemaInspectPanelPane.heightProperty().addListener((observable, oldValue, newValue) -> {
-            menu.setPrefHeight(cinemaInspectPanelPane.getHeight());
-        });
+        cinemaInspectPanelPane.heightProperty().addListener((observable, oldValue, newValue) -> menu.setPrefHeight(cinemaInspectPanelPane.getHeight()));
+    }
+
+    private void deleteButtonOnMouseClick(MouseEvent mouseEvent) {
+        FranemaApplication.appProvider.deleteCinema(FranemaApplication.appProvider.getCurrentCinema());
+        FranemaApplication.stageManager.closePopup((Stage) cinemaInspectPanelPane.getScene().getWindow());
+        try {
+            FranemaApplication.stageManager.showScene(FranemaApplication.stageManager.getCurrentScene());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
-    private void backButtonOnMouseClick(MouseEvent mouseEvent) {
-        try {
-            FranemaApplication.stageManager.showScene(SceneEntity.CINEMA_LIST);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private void exitButtonOnMouseClick(MouseEvent mouseEvent) {
+        FranemaApplication.stageManager.closePopup((Stage) cinemaInspectPanelPane.getScene().getWindow());
     }
 
     private void editButtonOnMouseClick(MouseEvent mouseEvent) {
@@ -106,5 +117,10 @@ public class CinemaInspectController {
         FranemaApplication.appProvider.getCurrentCinema().setName(nameField.getText());
         FranemaApplication.appProvider.getCurrentCinema().setAddress(addressField.getText());
         FranemaApplication.appProvider.saveCinema(FranemaApplication.appProvider.getCurrentCinema());
+        try {
+            FranemaApplication.stageManager.showScene(FranemaApplication.stageManager.getCurrentScene());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

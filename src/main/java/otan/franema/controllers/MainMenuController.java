@@ -1,12 +1,9 @@
 package otan.franema.controllers;
 
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
@@ -19,7 +16,6 @@ public class MainMenuController {
     public Button logoutButton = new Button();
     public Button exitButton = new Button();
     public Button ticketsButton = new Button();
-    public Button moviesButton = new Button();
     public Button adminButton = new Button();
     public VBox menu = new VBox();
     public Label label = new Label();
@@ -37,11 +33,9 @@ public class MainMenuController {
         exitButton.setText("Exit");
         exitButton.setOnMouseClicked(this::exitButtonOnMouseClick);
         
-        ticketsButton.setText("Purchased tickets");
+        ticketsButton.setText("View tickets");
         ticketsButton.setOnMouseClicked(this::ticketsButtonOnMouseClick);
-        
-        moviesButton.setText("Movies available");
-        moviesButton.setOnMouseClicked(this::moviesButtonOnMouseClick);
+
 
         adminButton.setText("Admin panel");
         adminButton.setOnMouseClicked(this::adminButtonOnMouseClick);
@@ -52,8 +46,10 @@ public class MainMenuController {
         menu.getChildren().addAll(label);
         if (FranemaApplication.appProvider.getCurrentUser().isAdmin()) {
             menu.getChildren().add(adminButton);
+        } else {
+            menu.getChildren().add(ticketsButton);
         }
-        menu.getChildren().addAll(ticketsButton, moviesButton, buttons);
+        menu.getChildren().add(buttons);
         menu.setAlignment(Pos.CENTER);
         menu.setSpacing(10);
         mainMenuPane.setCenter(menu);
@@ -78,11 +74,12 @@ public class MainMenuController {
         }
     }
 
-    private void moviesButtonOnMouseClick(MouseEvent mouseEvent) {
-    }
-
     private void ticketsButtonOnMouseClick(MouseEvent mouseEvent) {
-        
+        try {
+            FranemaApplication.stageManager.showScene(SceneEntity.TICKET_LIST);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

@@ -9,9 +9,12 @@ public enum SceneEntity {
     ADMIN_PANEL("admin-panel-view.fxml"),
     CINEMA_LIST("cinema-list-view.fxml"),
     CINEMA_INSPECT("cinema-inspect-view.fxml"),
+    TICKET_LIST("ticket-list-view.fxml"),
+    //USER_TICKET_LIST("user-ticket-list-view.fxml"),
+    TICKET_INSPECT("ticket-inspect-view.fxml"),
     LOGIN("login-view.fxml");
 
-    private String fxmlPath;
+    private final String fxmlPath;
     SceneEntity(String fxmlPath) {
         this.fxmlPath = fxmlPath;
     }

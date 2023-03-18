@@ -3,10 +3,9 @@ package otan.franema.controllers;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import otan.franema.FranemaApplication;
 import otan.franema.view.SceneEntity;
 
@@ -34,13 +33,9 @@ public class AdminPanelController {
         menu.setSpacing(10);
         adminPanelPane.setCenter(menu);
 
-        adminPanelPane.widthProperty().addListener((observable, oldValue, newValue) -> {
-            menu.setPrefWidth(adminPanelPane.getWidth());
-        });
+        adminPanelPane.widthProperty().addListener((observable, oldValue, newValue) -> menu.setPrefWidth(adminPanelPane.getWidth()));
 
-        adminPanelPane.heightProperty().addListener((observable, oldValue, newValue) -> {
-            menu.setPrefHeight(adminPanelPane.getHeight());
-        });
+        adminPanelPane.heightProperty().addListener((observable, oldValue, newValue) -> menu.setPrefHeight(adminPanelPane.getHeight()));
     }
 
     private void backButtonOnMouseClick(MouseEvent mouseEvent) {
@@ -60,6 +55,10 @@ public class AdminPanelController {
     }
 
     private void ticketsButtonOnMouseClick(MouseEvent mouseEvent) {
-
+        try {
+            FranemaApplication.stageManager.showScene(SceneEntity.TICKET_LIST);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

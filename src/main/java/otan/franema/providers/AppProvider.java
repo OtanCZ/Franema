@@ -9,34 +9,42 @@ import java.util.List;
 
 public class AppProvider {
     //Here are my DB details, I hope you won't do anything bad with them. You can look at the DB if you want, if anyone is stupid enough to put their actual password in the register page you might be able to get their accs.
-    static final String DB_URL = "jdbc:mysql://u9_w1ul5NXeCp:Y7l.ir4Ii8C8Wg8EzZvxM1i%3D@node1.otan.cz:3306/s9_Franema";
-    static UserEntity currentUser;
-    static List<TicketEntity> userTickets;
-    static List<TicketEntity> allTickets;
-    static List<CinemaEntity> allCinemas;
-    static CinemaEntity currentCinema;
-    static TicketEntity currentTicket;
+    private final String DB_URL = "jdbc:mysql://u9_w1ul5NXeCp:Y7l.ir4Ii8C8Wg8EzZvxM1i%3D@node1.otan.cz:3306/s9_Franema";
+    private UserEntity currentUser;
+    private List<TicketEntity> userTickets;
+    private List<TicketEntity> allTickets;
+    private List<CinemaEntity> allCinemas;
+    private CinemaEntity currentCinema;
+    private TicketEntity currentTicket;
 
     public AppProvider() {
         userTickets = new ArrayList<>();
         allTickets = new ArrayList<>();
         allCinemas = new ArrayList<>();
         fetchAllCinemas();
+        fetchAvailableTickets();
     }
 
-    public void loginAccount(String username, String password) throws ClassNotFoundException {
+    public void loginAccount(String username, String password) {
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM user WHERE username = \"" + username + "\"");
             if (rs.next()) {
                 //This is very stupid, but idc
-                UserEntity user = new UserEntity(rs.getString("username"), rs.getString("password"), rs.getBoolean("isAdmin"));
+                UserEntity user = new UserEntity(rs.getInt("id"), rs.getString("username"), rs.getString("password"), rs.getBoolean("isAdmin"));
                 if(user.getPassword().equals(password)) {
                     currentUser = user;
+                    fetchUserTickets();
                 }
             } else {
-                stmt.executeUpdate("INSERT INTO user VALUES (null, \"" + username + "\", \"" + password + "\", false)");
-                currentUser = new UserEntity(username, password, false);
+                PreparedStatement stmt2 = conn.prepareStatement("INSERT INTO user VALUES (null, ?, ?, false)", Statement.RETURN_GENERATED_KEYS);
+                stmt2.setString(1, username);
+                stmt2.setString(2, password);
+                stmt2.executeUpdate();
+                ResultSet rs2 = stmt2.getGeneratedKeys();
+                if (rs2.next()) {
+                    currentUser = new UserEntity(rs2.getInt(1), username, password, false);
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -80,21 +88,33 @@ public class AppProvider {
                 PreparedStatement ps = conn.prepareStatement("INSERT INTO cinema VALUES (null, \"" + currentCinema.getName() + "\", \"" + currentCinema.getAddress() + "\")", Statement.RETURN_GENERATED_KEYS);
                 ps.executeUpdate();
                 ResultSet rs = ps.getGeneratedKeys();
-                rs.next();
-                currentCinema.setId(rs.getInt(1));
-                allCinemas.add(currentCinema);
+                if(rs.next()){
+                    currentCinema.setId(rs.getInt(1));
+                    allCinemas.add(currentCinema);
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
+    public void deleteCinema(CinemaEntity cinema) {
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate("DELETE FROM cinema WHERE id = " + cinema.getId());
+            allCinemas.remove(cinema);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void fetchAvailableTickets() {
+        allTickets.clear();
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM ticket");
             while (rs.next()) {
-                TicketEntity ticket = new TicketEntity(findCinemaById(rs.getInt("cinema_id")), rs.getString("movie"), rs.getString("date"));
+                TicketEntity ticket = new TicketEntity(rs.getInt("id"), findCinemaById(rs.getInt("cinema_id")), rs.getString("movie"), rs.getString("time"));
                 allTickets.add(ticket);
             }
         } catch (SQLException e) {
@@ -102,51 +122,122 @@ public class AppProvider {
         }
     }
 
-    public static UserEntity getCurrentUser() {
+    public void fetchUserTickets() {
+        userTickets.clear();
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM ticket_user WHERE user_id = " + currentUser.getId());
+            while (rs.next()) {
+                PreparedStatement stmt2 = conn.prepareStatement("SELECT * FROM ticket WHERE id = ?");
+                stmt2.setInt(1, rs.getInt("ticket_id"));
+                ResultSet rs2 = stmt2.executeQuery();
+                if(rs2.next()) {
+                    TicketEntity ticket = new TicketEntity(rs2.getInt("id"), findCinemaById(rs2.getInt("cinema_id")), rs2.getString("movie"), rs2.getString("time"));
+                    userTickets.add(ticket);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public TicketEntity findTicketById(int id) {
+        for (TicketEntity ticket : allTickets) {
+            if(ticket.getId() == id) {
+                return ticket;
+            }
+        }
+        return null;
+    }
+
+    public void saveTicket(TicketEntity currentTicket) {
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            Statement stmt = conn.createStatement();
+            if(currentTicket.getId() != 0) {
+                stmt.executeUpdate("UPDATE ticket SET cinema_id = " + currentTicket.getCinema().getId() + ", movie = \"" + currentTicket.getMovie() + "\", time = \"" + currentTicket.getDate() + "\" WHERE id = " + currentTicket.getId());
+            } else {
+                PreparedStatement ps = conn.prepareStatement("INSERT INTO ticket VALUES (null, " + currentTicket.getCinema().getId() + ", \"" + currentTicket.getMovie() + "\", \"" + currentTicket.getDate() + "\")", Statement.RETURN_GENERATED_KEYS);
+                ps.executeUpdate();
+                ResultSet rs = ps.getGeneratedKeys();
+                if(rs.next()){
+                    currentTicket.setId(rs.getInt(1));
+                    allTickets.add(currentTicket);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void deleteTicket(TicketEntity ticket) {
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate("DELETE FROM ticket WHERE id = " + ticket.getId());
+            allTickets.remove(ticket);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void buyTicket(TicketEntity ticket) {
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate("INSERT INTO ticket_user VALUES (" + ticket.getId() + ", " + currentUser.getId() + ")");
+            userTickets.add(ticket);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getDB_URL() {
+        return DB_URL;
+    }
+
+    public UserEntity getCurrentUser() {
         return currentUser;
     }
 
-    public static void setCurrentUser(UserEntity currentUser) {
-        AppProvider.currentUser = currentUser;
+    public void setCurrentUser(UserEntity currentUser) {
+        this.currentUser = currentUser;
     }
 
-    public static List<TicketEntity> getUserTickets() {
+    public List<TicketEntity> getUserTickets() {
         return userTickets;
     }
 
-    public static void setUserTickets(List<TicketEntity> userTickets) {
-        AppProvider.userTickets = userTickets;
+    public void setUserTickets(List<TicketEntity> userTickets) {
+        this.userTickets = userTickets;
     }
 
-    public static List<TicketEntity> getAllTickets() {
+    public List<TicketEntity> getAllTickets() {
         return allTickets;
     }
 
-    public static void setAllTickets(List<TicketEntity> allTickets) {
-        AppProvider.allTickets = allTickets;
+    public void setAllTickets(List<TicketEntity> allTickets) {
+        this.allTickets = allTickets;
     }
 
-    public static List<CinemaEntity> getAllCinemas() {
+    public List<CinemaEntity> getAllCinemas() {
         return allCinemas;
     }
 
-    public static void setAllCinemas(List<CinemaEntity> allCinemas) {
-        AppProvider.allCinemas = allCinemas;
+    public void setAllCinemas(List<CinemaEntity> allCinemas) {
+        this.allCinemas = allCinemas;
     }
 
-    public static CinemaEntity getCurrentCinema() {
+    public CinemaEntity getCurrentCinema() {
         return currentCinema;
     }
 
-    public static void setCurrentCinema(CinemaEntity currentCinema) {
-        AppProvider.currentCinema = currentCinema;
+    public void setCurrentCinema(CinemaEntity currentCinema) {
+        this.currentCinema = currentCinema;
     }
 
-    public static TicketEntity getCurrentTicket() {
+    public TicketEntity getCurrentTicket() {
         return currentTicket;
     }
 
-    public static void setCurrentTicket(TicketEntity currentTicket) {
-        AppProvider.currentTicket = currentTicket;
+    public void setCurrentTicket(TicketEntity currentTicket) {
+        this.currentTicket = currentTicket;
     }
 }

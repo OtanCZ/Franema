@@ -11,16 +11,26 @@ public class StageManager {
         stage.setMaximized(true);
     }
 
-    public StageManager() {
-        this.stage = new Stage();
-    }
-
     public void showScene(SceneEntity sceneEntity) throws Exception {
         stage.setScene(sceneEntity.getScene());
         this.currentScene = sceneEntity;
         stage.show();
         stage.setWidth(stage.getWidth());
         System.out.println("Switched scene to " + sceneEntity.name());
+    }
+
+    public void showPopup(SceneEntity sceneEntity) throws Exception {
+        System.out.println("Showing popup of " + sceneEntity.name());
+        Stage popup = new Stage();
+        popup.initOwner(stage);
+        popup.setScene(sceneEntity.getScene());
+        popup.setWidth(stage.getWidth()/2);
+        popup.setHeight(stage.getHeight()/2);
+        popup.show();
+    }
+
+    public void closePopup(Stage popup) {
+        popup.close();
     }
 
     public void close() {

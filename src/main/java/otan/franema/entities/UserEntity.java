@@ -1,12 +1,14 @@
 package otan.franema.entities;
 
 public class UserEntity {
+    private int id;
     private String username;
     //Yes, I store the password in plaintext. I know it's bad, but I don't care. It's a school project.
     private String password;
     private boolean isAdmin;
 
-    public UserEntity(String username, String password, boolean isAdmin) {
+    public UserEntity(int id, String username, String password, boolean isAdmin) {
+        this.id = id;
         this.username = username;
         this.password = password;
         this.isAdmin = isAdmin;
@@ -36,10 +38,19 @@ public class UserEntity {
         isAdmin = admin;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     @Override
     public String toString() {
         return "UserEntity{" +
-                "username='" + username + '\'' +
+                "id=" + id +
+                ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", isAdmin=" + isAdmin +
                 '}';

@@ -9,8 +9,6 @@ import otan.franema.FranemaApplication;
 import otan.franema.entities.CinemaEntity;
 import otan.franema.view.SceneEntity;
 
-import java.io.IOException;
-
 public class CinemaListController {
     public BorderPane adminCinemaListPanelPane;
     public VBox cinemaList = new VBox();
@@ -20,7 +18,7 @@ public class CinemaListController {
 
 
     @FXML
-    public void initialize() throws IOException {
+    public void initialize() {
         System.out.println("cinemaListController initialized!");
         backButton.setText("Back to Admin Panel");
         backButton.setOnMouseClicked(this::backButtonOnMouseClick);
@@ -43,7 +41,7 @@ public class CinemaListController {
             button.setText(cinema.getName());
             button.setTooltip(new Tooltip(cinema.getId() + ""));
             button.setPrefWidth(adminCinemaListPanelPane.getWidth());
-            button.setPrefHeight(cinemaList.getPrefHeight() * 0.1);
+            button.setPrefHeight(adminCinemaListPanelPane.getPrefHeight() * 0.9 * 0.1);
             button.setTextFill(Color.BLACK);
             button.setOnMouseClicked(this::cinemaButtonOnMouseClick);
             cinemaList.getChildren().add(button);
@@ -68,7 +66,7 @@ public class CinemaListController {
         Button button = (Button) mouseEvent.getSource();
         FranemaApplication.appProvider.setCurrentCinema(FranemaApplication.appProvider.findCinemaById(Integer.parseInt(button.tooltipProperty().get().getText())));
         try {
-            FranemaApplication.stageManager.showScene(SceneEntity.CINEMA_INSPECT);
+            FranemaApplication.stageManager.showPopup(SceneEntity.CINEMA_INSPECT);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -77,7 +75,7 @@ public class CinemaListController {
     private void createCinemaOnMouseClick(MouseEvent mouseEvent) {
         try {
             FranemaApplication.appProvider.setCurrentCinema(new CinemaEntity(0, null, null));
-            FranemaApplication.stageManager.showScene(SceneEntity.CINEMA_INSPECT);
+            FranemaApplication.stageManager.showPopup(SceneEntity.CINEMA_INSPECT);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -85,7 +83,11 @@ public class CinemaListController {
 
     private void backButtonOnMouseClick(MouseEvent mouseEvent) {
         try {
-            FranemaApplication.stageManager.showScene(SceneEntity.ADMIN_PANEL);
+            if(FranemaApplication.appProvider.getCurrentUser().isAdmin()){
+                FranemaApplication.stageManager.showScene(SceneEntity.ADMIN_PANEL);
+            } else {
+                FranemaApplication.stageManager.showScene(SceneEntity.MAIN_MENU);
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
