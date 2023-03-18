@@ -19,6 +19,7 @@ public class AppProvider {
     private TicketEntity currentTicket;
 
     public AppProvider() {
+        initializeDB();
         userTickets = new ArrayList<>();
         allTickets = new ArrayList<>();
         allCinemas = new ArrayList<>();
@@ -207,6 +208,19 @@ public class AppProvider {
             Statement stmt = conn.createStatement();
             stmt.executeUpdate("INSERT INTO ticket_user VALUES (" + ticket.getId() + ", " + currentUser.getId() + ")");
             userTickets.add(ticket);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void initializeDB() {
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS `cinema` (`id` int(10) unsigned NOT NULL AUTO_INCREMENT, `name` varchar(255) NOT NULL, `address` varchar(255) DEFAULT NULL, PRIMARY KEY (`id`)) ENGINE = InnoDB AUTO_INCREMENT = 25 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci");
+            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS `user` (`id` int(10) unsigned NOT NULL AUTO_INCREMENT, `username` varchar(255) NOT NULL, `password` varchar(255) NOT NULL, `isAdmin` tinyint(1) NOT NULL, PRIMARY KEY (`id`), UNIQUE KEY `username` (`username`)) ENGINE = InnoDB AUTO_INCREMENT = 8 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci");
+            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS `ticket` (`id` int(10) unsigned NOT NULL AUTO_INCREMENT, `cinema_id` int(10) unsigned NOT NULL, `movie` varchar(255) NOT NULL, `time` timestamp NOT NULL, PRIMARY KEY (`id`), KEY `ticket_cinema_relation` (`cinema_id`), CONSTRAINT `ticket_cinema_relation` FOREIGN KEY (`cinema_id`) REFERENCES `cinema` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION) ENGINE = InnoDB AUTO_INCREMENT = 10 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci");
+            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS `cinema` (`id` int(10) unsigned NOT NULL AUTO_INCREMENT, `name` varchar(255) NOT NULL, `address` varchar(255) DEFAULT NULL, PRIMARY KEY (`id`)) ENGINE = InnoDB AUTO_INCREMENT = 25 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci");
+            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS `ticket_user` (`ticket_id` int(10) unsigned DEFAULT NULL, `user_id` int(10) unsigned DEFAULT NULL, KEY `ticket_relation` (`ticket_id`), KEY `user_relation` (`user_id`), CONSTRAINT `ticket_relation` FOREIGN KEY (`ticket_id`) REFERENCES `ticket` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION, CONSTRAINT `user_relation` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
